@@ -1,14 +1,15 @@
-use crate::config::Config;
+use crate::app::AppState;
 use chrono::Local;
 use gtk4::prelude::*;
-use gtk4::Label;
+use gtk4::{glib, Label};
+use std::sync::Arc;
 
 pub struct Clock {
     label: Label,
 }
 
 impl Clock {
-    pub fn new(_config: &Config) -> Self {
+    pub fn new(_state: &Arc<AppState>) -> Self {
         let label = Label::new(None);
         label.add_css_class("clock-label");
 

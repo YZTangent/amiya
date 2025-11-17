@@ -1,16 +1,19 @@
-use crate::config::{Config, Position};
+use crate::app::AppState;
+use crate::config::Position;
 use crate::widgets::{clock::Clock, system_info::SystemInfo, workspaces::Workspaces};
 use anyhow::Result;
 use gtk4::prelude::*;
 use gtk4::{Application, ApplicationWindow, Box as GtkBox, Orientation};
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
+use std::sync::Arc;
 
 pub struct Bar {
     window: ApplicationWindow,
 }
 
 impl Bar {
-    pub fn new(app: &Application, config: &Config) -> Result<Self> {
+    pub fn new(app: &Application, state: &Arc<AppState>) -> Result<Self> {
+        let config = &state.config;
         let window = ApplicationWindow::builder()
             .application(app)
             .title("Amiya Bar")
@@ -55,7 +58,7 @@ impl Bar {
         left_box.set_margin_bottom(4);
 
         if config.bar.show_workspaces {
-            let workspaces = Workspaces::new(config);
+            let workspaces = Workspaces::new(state);
             left_box.append(&workspaces.widget());
         }
 
@@ -65,7 +68,7 @@ impl Bar {
         center_box.set_hexpand(true);
 
         if config.bar.show_clock {
-            let clock = Clock::new(config);
+            let clock = Clock::new(state);
             center_box.append(&clock.widget());
         }
 
@@ -78,7 +81,7 @@ impl Bar {
         right_box.set_halign(gtk4::Align::End);
 
         if config.bar.show_system_info {
-            let system_info = SystemInfo::new(config);
+            let system_info = SystemInfo::new(state);
             right_box.append(&system_info.widget());
         }
 
@@ -97,7 +100,7 @@ impl Bar {
     }
 }
 
-fn apply_theme(window: &ApplicationWindow, config: &Config) {
+fn apply_theme(window: &ApplicationWindow, config: &crate::config::Config) {
     let provider = gtk4::CssProvider::new();
     let css = format!(
         r#"
