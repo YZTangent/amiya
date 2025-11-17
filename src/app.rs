@@ -1,4 +1,4 @@
-use crate::backend::NiriClient;
+use crate::backend::{AudioControl, NiriClient};
 use crate::config::Config;
 use crate::error::BackendStatus;
 use crate::events::EventManager;
@@ -20,6 +20,9 @@ pub struct AppState {
 
     /// Niri IPC client (optional - may be None if niri is not running)
     pub niri_client: Option<Arc<NiriClient>>,
+
+    /// Audio control (optional - may be None if audio backend unavailable)
+    pub audio_control: Option<Arc<AudioControl>>,
 }
 
 impl AppState {
@@ -41,6 +44,11 @@ impl AppState {
             }
         };
 
+        // Initialize audio control
+        let audio_control = Some(crate::backend::system::audio::create_audio_control_sync(
+            events.clone(),
+        ));
+
         // Check backend availability
         let backend_status = if niri_client.is_some() {
             BackendStatus::Available
@@ -53,6 +61,7 @@ impl AppState {
             events,
             backend_status,
             niri_client,
+            audio_control,
         }
     }
 
