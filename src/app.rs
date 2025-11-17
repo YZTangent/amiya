@@ -1,4 +1,4 @@
-use crate::backend::{AudioControl, BacklightControl, BluetoothControl, NiriClient};
+use crate::backend::{AudioControl, BacklightControl, BluetoothControl, NetworkControl, NiriClient};
 use crate::config::Config;
 use crate::error::BackendStatus;
 use crate::events::EventManager;
@@ -29,6 +29,9 @@ pub struct AppState {
 
     /// Bluetooth control (optional - may be None if bluetooth unavailable)
     pub bluetooth_control: Option<Arc<BluetoothControl>>,
+
+    /// Network control (optional - may be None if network unavailable)
+    pub network_control: Option<Arc<NetworkControl>>,
 }
 
 impl AppState {
@@ -65,6 +68,11 @@ impl AppState {
             crate::backend::system::bluetooth::create_bluetooth_control_sync(events.clone()),
         );
 
+        // Initialize network control
+        let network_control = Some(
+            crate::backend::system::network::create_network_control_sync(events.clone()),
+        );
+
         // Check backend availability
         let backend_status = if niri_client.is_some() {
             BackendStatus::Available
@@ -80,6 +88,7 @@ impl AppState {
             audio_control,
             backlight_control,
             bluetooth_control,
+            network_control,
         }
     }
 
