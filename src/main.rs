@@ -14,7 +14,7 @@ use anyhow::Result;
 use gtk4::prelude::*;
 use gtk4::Application as GtkApplication;
 use std::sync::Arc;
-use tracing::{info, Level};
+use tracing::{error, info, Level};
 use tracing_subscriber;
 
 const APP_ID: &str = "com.amiya.desktop";
@@ -72,6 +72,16 @@ fn activate(gtk_app: &GtkApplication, app_state: Arc<app::AppState>) -> Result<(
 
     // Initialize overlay manager for volume and brightness sliders
     let _overlay_manager = overlays::OverlayManager::new(gtk_app, &app_state);
+
+    // Start IPC server in background
+    let ipc_server = Arc::new(ipc::IpcServer::new(app_state.clone())?);
+    let ipc_server_clone = ipc_server.clone();
+    tokio::spawn(async move {
+        if let Err(e) = ipc_server_clone.start().await {
+            error!("IPC server error: {}", e);
+        }
+    });
+    info!("IPC server started");
 
     Ok(())
 }
