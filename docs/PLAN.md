@@ -149,15 +149,22 @@ Implement D-Bus backends for system control.
   - [ ] Document udev rules in README
   - [ ] Test on real hardware
 
-### 4.3 Bluetooth Control (BlueZ)
-- [ ] Update `src/backend/system/bluetooth.rs`
-  - [ ] Implement D-Bus connection to BlueZ
-  - [ ] Implement adapter control (enable/disable)
-  - [ ] Implement device scanning
-  - [ ] Implement device pairing
-  - [ ] Implement device connection/disconnection
-  - [ ] Subscribe to device signals
-  - [ ] Emit Bluetooth events
+### 4.3 Bluetooth Control (BlueZ) ✅
+- [x] Update `src/backend/system/bluetooth.rs`
+  - [x] Implement D-Bus connection to BlueZ
+  - [x] Implement adapter control (powered on/off)
+  - [x] Implement device scanning (start/stop discovery)
+  - [x] Implement device pairing
+  - [x] Implement device connection/disconnection
+  - [x] Implement device removal/unpairing
+  - [x] Async implementation with tokio
+  - [x] Thread-safe with RwLock
+  - [x] Event integration with EventManager
+  - [x] Graceful degradation when Bluetooth unavailable
+  - [x] Adapter auto-detection (hci0, hci1, hci2)
+  - [x] Unit tests for bluetooth control
+  - [x] Subscribe to device signals (basic)
+  - [x] Emit Bluetooth events
   - [ ] Test with real Bluetooth devices
 
 ### 4.4 Network Control (NetworkManager)
