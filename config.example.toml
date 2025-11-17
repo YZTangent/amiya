@@ -1,0 +1,81 @@
+# Amiya Desktop Environment Configuration
+# This file is an example configuration. Copy it to ~/.config/amiya/config.toml
+
+[bar]
+# Bar height in pixels
+height = 32
+
+# Bar position: "top" or "bottom"
+position = "top"
+
+# Show workspaces section
+show_workspaces = true
+
+# Show clock in the center
+show_clock = true
+
+# Show system information (CPU, RAM, temp, WiFi, BT)
+show_system_info = true
+
+[theme]
+# Background color (supports hex colors)
+background = "#1e1e2e"
+
+# Foreground/text color
+foreground = "#cdd6f4"
+
+# Accent color for highlights and active elements
+accent = "#89b4fa"
+
+# Font family
+font = "Sans"
+
+# Font size in points
+font_size = 11
+
+# Hotkey mappings
+# Note: These are informational. Actual hotkey handling should be done
+# through niri's config or an external hotkey daemon like swhkd
+[hotkeys]
+"Super+B" = "show-bluetooth"
+"Super+W" = "show-wifi"
+"Super+M" = "show-media-control"
+"Super+Shift+Up" = "increase-brightness"
+"Super+Shift+Down" = "decrease-brightness"
+"XF86AudioRaiseVolume" = "increase-volume"
+"XF86AudioLowerVolume" = "decrease-volume"
+"XF86AudioMute" = "mute"
+
+# Alternative color schemes (uncomment to use)
+
+# Dracula theme
+# [theme]
+# background = "#282a36"
+# foreground = "#f8f8f2"
+# accent = "#bd93f9"
+# font = "Sans"
+# font_size = 11
+
+# Nord theme
+# [theme]
+# background = "#2e3440"
+# foreground = "#eceff4"
+# accent = "#88c0d0"
+# font = "Sans"
+# font_size = 11
+
+# Gruvbox Dark theme
+# [theme]
+# background = "#282828"
+# foreground = "#ebdbb2"
+# accent = "#83a598"
+# font = "Sans"
+# font_size = 11
+
+# Tokyo Night theme
+# [theme]
+# background = "#1a1b26"
+# foreground = "#c0caf5"
+# accent = "#7aa2f7"
+# font = "Sans"
+# font_size = 11
