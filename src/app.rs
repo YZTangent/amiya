@@ -1,4 +1,4 @@
-use crate::backend::{AudioControl, NiriClient};
+use crate::backend::{AudioControl, BacklightControl, NiriClient};
 use crate::config::Config;
 use crate::error::BackendStatus;
 use crate::events::EventManager;
@@ -23,6 +23,9 @@ pub struct AppState {
 
     /// Audio control (optional - may be None if audio backend unavailable)
     pub audio_control: Option<Arc<AudioControl>>,
+
+    /// Backlight control (optional - may be None if backlight unavailable)
+    pub backlight_control: Option<Arc<BacklightControl>>,
 }
 
 impl AppState {
@@ -49,6 +52,11 @@ impl AppState {
             events.clone(),
         ));
 
+        // Initialize backlight control
+        let backlight_control = Some(
+            crate::backend::system::backlight::create_backlight_control_sync(events.clone()),
+        );
+
         // Check backend availability
         let backend_status = if niri_client.is_some() {
             BackendStatus::Available
@@ -62,6 +70,7 @@ impl AppState {
             backend_status,
             niri_client,
             audio_control,
+            backlight_control,
         }
     }
 

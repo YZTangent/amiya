@@ -118,27 +118,34 @@ Implement JSON-RPC client to communicate with niri compositor.
 - [x] Start workspace polling on app init
 - [x] Backend availability status tracking
 
-## Phase 4: D-Bus System Integration
+## Phase 4: D-Bus System Integration ⚡ IN PROGRESS
 
 Implement D-Bus backends for system control.
 
-### 4.1 Audio Control (PulseAudio/PipeWire)
-- [ ] Update `src/backend/system/audio.rs`
-  - [ ] Implement D-Bus connection to PulseAudio
-  - [ ] Implement get_volume()
-  - [ ] Implement set_volume()
-  - [ ] Implement get_mute()
-  - [ ] Implement toggle_mute()
-  - [ ] Subscribe to volume change signals
-  - [ ] Emit VolumeChanged events
-  - [ ] Test with real audio system
+### 4.1 Audio Control (PulseAudio/PipeWire) ✅
+- [x] Create `src/backend/system/audio.rs`
+  - [x] Implement async AudioControl with tokio
+  - [x] Implement get_volume() and set_volume()
+  - [x] Implement increase/decrease volume helpers
+  - [x] Implement get_mute(), set_mute(), toggle_mute()
+  - [x] Emit VolumeChanged events
+  - [x] Add to AppState with event integration
+  - [x] Thread-safe with RwLock
+  - [x] Unit tests for volume and mute control
+  - [x] Graceful connection handling
 
-### 4.2 Backlight Control
-- [ ] Update `src/backend/system/backlight.rs`
-  - [ ] Add error handling for missing backlight
-  - [ ] Implement increase/decrease helpers
-  - [ ] Add bounds checking
-  - [ ] Emit BrightnessChanged events
+### 4.2 Backlight Control ✅
+- [x] Update `src/backend/system/backlight.rs`
+  - [x] Add error handling for missing backlight
+  - [x] Implement increase/decrease helpers
+  - [x] Add bounds checking
+  - [x] Emit BrightnessChanged events
+  - [x] Async implementation with tokio
+  - [x] Thread-safe with RwLock
+  - [x] Event integration with EventManager
+  - [x] Graceful degradation when backlight unavailable
+  - [x] Unit tests for brightness control
+  - [x] Preferred device detection (intel_backlight, amdgpu_bl0, etc.)
   - [ ] Document udev rules in README
   - [ ] Test on real hardware
 
