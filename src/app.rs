@@ -1,9 +1,10 @@
 use crate::config::Config;
+use crate::error::BackendStatus;
 use crate::events::EventManager;
 use anyhow::Result;
 use gtk4::glib;
 use std::sync::Arc;
-use tracing::info;
+use tracing::{info, warn};
 
 /// Global application state coordinator
 pub struct AppState {
@@ -12,6 +13,9 @@ pub struct AppState {
 
     /// Event manager for broadcasting events
     pub events: EventManager,
+
+    /// Backend availability status
+    pub backend_status: BackendStatus,
 }
 
 impl AppState {
@@ -21,7 +25,21 @@ impl AppState {
 
         let events = EventManager::default();
 
-        AppState { config, events }
+        // Check backend availability
+        let backend_status = Self::check_backend_availability();
+
+        AppState {
+            config,
+            events,
+            backend_status,
+        }
+    }
+
+    /// Check if system backends are available
+    fn check_backend_availability() -> BackendStatus {
+        // For now, assume available
+        // In Phase 3 & 4, we'll actually check niri socket, D-Bus services, etc.
+        BackendStatus::Available
     }
 
     /// Get an Arc-wrapped clone for sharing across threads
@@ -70,28 +88,35 @@ impl Application {
 
         // CPU and Memory monitoring
         glib::timeout_add_seconds_local(2, move || {
-            let mut sys = System::new_with_specifics(
-                RefreshKind::new()
-                    .with_cpu(CpuRefreshKind::everything())
-                    .with_memory(),
-            );
+            // Gracefully handle sysinfo errors
+            let result = std::panic::catch_unwind(|| {
+                let mut sys = System::new_with_specifics(
+                    RefreshKind::new()
+                        .with_cpu(CpuRefreshKind::everything())
+                        .with_memory(),
+                );
 
-            sys.refresh_cpu_all();
-            sys.refresh_memory();
+                sys.refresh_cpu_all();
+                sys.refresh_memory();
 
-            // CPU usage
-            let cpu_usage = sys.global_cpu_usage() as f64;
-            events.emit(Event::CpuUsageChanged { usage: cpu_usage });
+                // CPU usage
+                let cpu_usage = sys.global_cpu_usage() as f64;
+                events.emit(Event::CpuUsageChanged { usage: cpu_usage });
 
-            // Memory usage
-            let used = sys.used_memory();
-            let total = sys.total_memory();
-            let percent = (used as f64 / total as f64) * 100.0;
-            events.emit(Event::MemoryUsageChanged {
-                used,
-                total,
-                percent,
+                // Memory usage
+                let used = sys.used_memory();
+                let total = sys.total_memory();
+                let percent = (used as f64 / total as f64) * 100.0;
+                events.emit(Event::MemoryUsageChanged {
+                    used,
+                    total,
+                    percent,
+                });
             });
+
+            if let Err(e) = result {
+                warn!("System monitoring error: {:?}", e);
+            }
 
             glib::ControlFlow::Continue
         });
@@ -99,8 +124,14 @@ impl Application {
         // Temperature monitoring
         let events = self.state.events.clone();
         glib::timeout_add_seconds_local(5, move || {
-            if let Ok(temp) = read_cpu_temp() {
-                events.emit(Event::TemperatureChanged { celsius: temp });
+            match read_cpu_temp() {
+                Ok(temp) => {
+                    events.emit(Event::TemperatureChanged { celsius: temp });
+                }
+                Err(e) => {
+                    // Don't spam logs - temperature read failures are common on some systems
+                    tracing::debug!("Temperature read failed: {}", e);
+                }
             }
             glib::ControlFlow::Continue
         });

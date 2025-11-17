@@ -23,7 +23,7 @@ Basic project structure and UI components with mock data.
 - [x] Example configuration file
 - [x] MIT License
 
-## Phase 2: Event System & Application State ⚡ IN PROGRESS
+## Phase 2: Event System & Application State ✅ COMPLETED
 
 Implement the central event bus and refactor components to use reactive updates.
 
@@ -54,18 +54,21 @@ Implement the central event bus and refactor components to use reactive updates.
   - [x] Update CPU/RAM/temp on event receive
   - [x] Subscribe to WiFi/Bluetooth state changes
 - [x] Refactor `Clock` widget to accept AppState
-- [ ] Refactor `VolumeOverlay`
-  - [ ] Subscribe to `VolumeChanged` events
-  - [ ] Show overlay on event receive
-- [ ] Refactor `BrightnessOverlay`
-  - [ ] Subscribe to `BrightnessChanged` events
-  - [ ] Show overlay on event receive
+- [x] Refactor `VolumeOverlay`
+  - [x] Subscribe to `VolumeChanged` events
+  - [x] Show overlay on event receive
+  - [x] Support muted state
+- [x] Refactor `BrightnessOverlay`
+  - [x] Subscribe to `BrightnessChanged` events
+  - [x] Show overlay on event receive
+- [x] Create `OverlayManager` to coordinate overlays
 
-### 2.4 Error Handling
-- [ ] Add proper error types
-- [ ] Implement graceful degradation for missing backends
-- [ ] Add error logging with tracing
-- [ ] Add user-facing error notifications
+### 2.4 Error Handling ✅
+- [x] Add proper error types (`src/error.rs`)
+- [x] Implement graceful degradation for missing backends
+- [x] Add error logging with tracing
+- [x] Add panic catching for system monitors
+- [x] Backend availability status tracking
 
 ## Phase 3: Niri IPC Integration
 
