@@ -31,12 +31,28 @@ impl Workspaces {
 
             // Clone for click handler
             let events = state.events.clone();
+            let niri_client = state.niri_client.clone();
             button.connect_clicked(move |btn| {
                 let workspace_id = btn.data::<u32>("workspace_id").unwrap();
-                // In Phase 3, this will send IPC to niri to switch workspace
-                // For now, just emit an event
-                tracing::info!("Switching to workspace {}", workspace_id);
-                events.emit(Event::WorkspaceChanged { id: workspace_id });
+
+                // Try to switch workspace via niri
+                if let Some(client) = &niri_client {
+                    match client.focus_workspace(workspace_id) {
+                        Ok(()) => {
+                            tracing::info!("Switched to workspace {}", workspace_id);
+                            // Event will be emitted by niri polling
+                        }
+                        Err(e) => {
+                            tracing::warn!("Failed to switch workspace: {}", e);
+                            // Emit event anyway for UI feedback
+                            events.emit(Event::WorkspaceChanged { id: workspace_id });
+                        }
+                    }
+                } else {
+                    // No niri client, just emit event for mock behavior
+                    tracing::info!("Switching to workspace {} (mock - no niri)", workspace_id);
+                    events.emit(Event::WorkspaceChanged { id: workspace_id });
+                }
             });
 
             buttons.insert(i, button.clone());
