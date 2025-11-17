@@ -1,0 +1,63 @@
+// Example niri configuration with Amiya hotkeys
+// Place this in ~/.config/niri/config.kdl
+
+// Amiya popup hotkeys
+binds {
+    // Bluetooth popup
+    Mod+B { spawn "amiya-ctl" "popup" "toggle" "bluetooth"; }
+
+    // WiFi popup
+    Mod+W { spawn "amiya-ctl" "popup" "toggle" "wifi"; }
+
+    // Media control popup
+    Mod+M { spawn "amiya-ctl" "popup" "toggle" "media-control"; }
+
+    // Alternative: Show popups explicitly
+    // Mod+Shift+B { spawn "amiya-ctl" "popup" "show" "bluetooth"; }
+    // Mod+Shift+W { spawn "amiya-ctl" "popup" "show" "wifi"; }
+
+    // Volume control
+    XF86AudioRaiseVolume { spawn "amiya-ctl" "volume" "up"; }
+    XF86AudioLowerVolume { spawn "amiya-ctl" "volume" "down"; }
+    XF86AudioMute { spawn "amiya-ctl" "volume" "toggle-mute"; }
+
+    // Alternative: Custom volume amounts
+    // Mod+Plus { spawn "amiya-ctl" "volume" "up" "--amount" "10"; }
+    // Mod+Minus { spawn "amiya-ctl" "volume" "down" "--amount" "10"; }
+
+    // Brightness control
+    XF86MonBrightnessUp { spawn "amiya-ctl" "brightness" "up"; }
+    XF86MonBrightnessDown { spawn "amiya-ctl" "brightness" "down"; }
+
+    // Alternative: Custom brightness amounts
+    // Mod+F11 { spawn "amiya-ctl" "brightness" "down" "--amount" "10"; }
+    // Mod+F12 { spawn "amiya-ctl" "brightness" "up" "--amount" "10"; }
+
+    // Set specific levels
+    // Mod+Shift+1 { spawn "amiya-ctl" "volume" "set" "10"; }
+    // Mod+Shift+5 { spawn "amiya-ctl" "volume" "set" "50"; }
+    // Mod+Shift+0 { spawn "amiya-ctl" "volume" "set" "100"; }
+}
+
+// Recommended niri settings for Amiya
+layout {
+    // Reserve space for the bar
+    gaps 8
+
+    // Optional: Adjust focus behavior
+    focus-ring {
+        width 2
+        active-color "#89b4fa"
+        inactive-color "#45475a"
+    }
+}
+
+// Optional: Set up workspaces
+workspace "1"
+workspace "2"
+workspace "3"
+workspace "4"
+workspace "5"
+
+// Optional: Prefer dark theme
+prefer-no-csd
