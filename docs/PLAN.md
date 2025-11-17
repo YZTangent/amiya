@@ -167,15 +167,25 @@ Implement D-Bus backends for system control.
   - [x] Emit Bluetooth events
   - [ ] Test with real Bluetooth devices
 
-### 4.4 Network Control (NetworkManager)
-- [ ] Update `src/backend/system/network.rs`
-  - [ ] Implement D-Bus connection to NetworkManager
-  - [ ] Implement WiFi enable/disable
-  - [ ] Implement network scanning
-  - [ ] Implement network connection
-  - [ ] Implement network disconnection
-  - [ ] Subscribe to connection signals
-  - [ ] Emit network events
+### 4.4 Network Control (NetworkManager) ✅
+- [x] Update `src/backend/system/network.rs`
+  - [x] Implement D-Bus connection to NetworkManager
+  - [x] Implement WiFi enable/disable
+  - [x] Implement network scanning (RequestScan)
+  - [x] Implement get_networks (enumerate access points)
+  - [x] Implement network connection (basic)
+  - [x] Implement network disconnection
+  - [x] Async implementation with tokio
+  - [x] Thread-safe with RwLock
+  - [x] Event integration with EventManager
+  - [x] Graceful degradation when WiFi unavailable
+  - [x] WiFi device auto-detection
+  - [x] Access point enumeration with signal strength
+  - [x] Security detection (WPA/RSN flags)
+  - [x] Unit tests for network control
+  - [x] Subscribe to connection signals (basic)
+  - [x] Emit network events
+  - [ ] Implement full connection workflow (AddAndActivateConnection)
   - [ ] Test with real WiFi networks
 
 ### 4.5 Media Control (MPRIS2)
