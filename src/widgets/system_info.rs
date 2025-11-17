@@ -1,15 +1,15 @@
-use crate::config::Config;
+use crate::app::AppState;
+use crate::events::Event;
 use gtk4::prelude::*;
-use gtk4::{Box as GtkBox, Label, Orientation};
-use std::sync::{Arc, Mutex};
-use sysinfo::{CpuRefreshKind, RefreshKind, System};
+use gtk4::{glib, Box as GtkBox, Label, Orientation};
+use std::sync::Arc;
 
 pub struct SystemInfo {
     container: GtkBox,
 }
 
 impl SystemInfo {
-    pub fn new(config: &Config) -> Self {
+    pub fn new(state: &Arc<AppState>) -> Self {
         let container = GtkBox::new(Orientation::Horizontal, 12);
 
         // CPU usage
@@ -37,12 +37,14 @@ impl SystemInfo {
         bt_label.add_css_class("system-info-label");
         container.append(&bt_label);
 
-        // Start monitoring
-        Self::start_monitoring(
+        // Subscribe to events
+        Self::subscribe_to_events(
+            state.events.clone(),
             cpu_label.clone(),
             mem_label.clone(),
             temp_label.clone(),
-            config.clone(),
+            wifi_label.clone(),
+            bt_label.clone(),
         );
 
         SystemInfo { container }
@@ -52,59 +54,66 @@ impl SystemInfo {
         self.container.clone()
     }
 
-    fn start_monitoring(
+    fn subscribe_to_events(
+        events: crate::events::EventManager,
         cpu_label: Label,
         mem_label: Label,
         temp_label: Label,
-        _config: Config,
+        wifi_label: Label,
+        bt_label: Label,
     ) {
-        let sys = Arc::new(Mutex::new(System::new_with_specifics(
-            RefreshKind::new()
-                .with_cpu(CpuRefreshKind::everything())
-                .with_memory(),
-        )));
+        let mut receiver = events.subscribe();
 
-        // Update every 2 seconds
-        glib::timeout_add_seconds_local(2, move || {
-            let mut sys = sys.lock().unwrap();
-            sys.refresh_cpu_all();
-            sys.refresh_memory();
-
-            // CPU usage
-            let cpu_usage = sys.global_cpu_usage();
-            cpu_label.set_text(&format!("CPU: {:.1}%", cpu_usage));
-
-            // Memory usage
-            let mem_used = sys.used_memory();
-            let mem_total = sys.total_memory();
-            let mem_percent = (mem_used as f64 / mem_total as f64) * 100.0;
-            mem_label.set_text(&format!("MEM: {:.1}%", mem_percent));
-
-            // Temperature (this is system-dependent)
-            // On Linux, you'd typically read from /sys/class/thermal/thermal_zone*/temp
-            if let Ok(temp) = Self::read_cpu_temp() {
-                temp_label.set_text(&format!("TEMP: {}°C", temp));
-            }
-
-            glib::ControlFlow::Continue
-        });
-    }
-
-    fn read_cpu_temp() -> Result<i32, std::io::Error> {
-        // Try to read from common thermal zones
-        let thermal_paths = [
-            "/sys/class/thermal/thermal_zone0/temp",
-            "/sys/class/thermal/thermal_zone1/temp",
-        ];
-
-        for path in &thermal_paths {
-            if let Ok(content) = std::fs::read_to_string(path) {
-                if let Ok(temp) = content.trim().parse::<i32>() {
-                    return Ok(temp / 1000); // Convert from millidegrees
+        // Spawn event listener
+        glib::spawn_future_local(async move {
+            loop {
+                match receiver.recv().await {
+                    Ok(event) => match event {
+                        Event::CpuUsageChanged { usage } => {
+                            cpu_label.set_text(&format!("CPU: {:.1}%", usage));
+                        }
+                        Event::MemoryUsageChanged { percent, .. } => {
+                            mem_label.set_text(&format!("MEM: {:.1}%", percent));
+                        }
+                        Event::TemperatureChanged { celsius } => {
+                            temp_label.set_text(&format!("TEMP: {}°C", celsius));
+                        }
+                        Event::WifiStateChanged { enabled } => {
+                            let text = if enabled {
+                                "📶 WiFi"
+                            } else {
+                                "📶 WiFi (Off)"
+                            };
+                            wifi_label.set_text(text);
+                        }
+                        Event::WifiNetworkConnected { ssid } => {
+                            wifi_label.set_text(&format!("📶 {}", ssid));
+                        }
+                        Event::WifiNetworkDisconnected => {
+                            wifi_label.set_text("📶 WiFi");
+                        }
+                        Event::BluetoothStateChanged { enabled } => {
+                            let text = if enabled {
+                                "🔵 BT"
+                            } else {
+                                "🔵 BT (Off)"
+                            };
+                            bt_label.set_text(text);
+                        }
+                        Event::BluetoothDeviceConnected { name, .. } => {
+                            bt_label.set_text(&format!("🔵 {}", name));
+                        }
+                        Event::BluetoothDeviceDisconnected { .. } => {
+                            bt_label.set_text("🔵 BT");
+                        }
+                        _ => {} // Ignore other events
+                    },
+                    Err(_) => {
+                        // Channel closed, exit loop
+                        break;
+                    }
                 }
             }
-        }
-
-        Ok(0) // Default if no thermal zone found
+        });
     }
 }

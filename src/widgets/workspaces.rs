@@ -1,19 +1,20 @@
-use crate::config::Config;
+use crate::app::AppState;
+use crate::events::Event;
 use gtk4::prelude::*;
-use gtk4::{Box as GtkBox, Button, Label, Orientation};
-use std::sync::{Arc, Mutex};
+use gtk4::{glib, Box as GtkBox, Button, Label, Orientation};
+use std::collections::HashMap;
+use std::sync::Arc;
 
 pub struct Workspaces {
     container: GtkBox,
 }
 
 impl Workspaces {
-    pub fn new(config: &Config) -> Self {
+    pub fn new(state: &Arc<AppState>) -> Self {
         let container = GtkBox::new(Orientation::Horizontal, 4);
 
         // Create workspace buttons (1-9 for now)
-        // In a real implementation, this would query niri via IPC
-        let active_workspace = Arc::new(Mutex::new(1));
+        let mut buttons = HashMap::new();
 
         for i in 1..=9 {
             let button = Button::new();
@@ -25,23 +26,25 @@ impl Workspaces {
                 button.add_css_class("active");
             }
 
-            let active = active_workspace.clone();
-            let btn_clone = button.clone();
-            button.connect_clicked(move |_| {
-                // In real implementation: send IPC to niri to switch workspace
-                let mut current = active.lock().unwrap();
-                *current = i;
-                println!("Switching to workspace {}", i);
+            // Store workspace ID in button data
+            button.set_data("workspace_id", i);
 
-                // Update button styles (simplified - in real app would update all buttons)
-                btn_clone.add_css_class("active");
+            // Clone for click handler
+            let events = state.events.clone();
+            button.connect_clicked(move |btn| {
+                let workspace_id = btn.data::<u32>("workspace_id").unwrap();
+                // In Phase 3, this will send IPC to niri to switch workspace
+                // For now, just emit an event
+                tracing::info!("Switching to workspace {}", workspace_id);
+                events.emit(Event::WorkspaceChanged { id: workspace_id });
             });
 
+            buttons.insert(i, button.clone());
             container.append(&button);
         }
 
-        // Start workspace monitor
-        Self::start_workspace_monitor(container.clone(), config.clone());
+        // Subscribe to workspace events
+        Self::subscribe_to_events(state.events.clone(), buttons);
 
         Workspaces { container }
     }
@@ -50,15 +53,47 @@ impl Workspaces {
         self.container.clone()
     }
 
-    fn start_workspace_monitor(container: GtkBox, _config: Config) {
-        // Spawn a task to monitor workspace changes from niri
-        // This would use niri's IPC in a real implementation
+    fn subscribe_to_events(
+        events: crate::events::EventManager,
+        buttons: HashMap<u32, Button>,
+    ) {
+        let mut receiver = events.subscribe();
+
         glib::spawn_future_local(async move {
-            // Placeholder for niri IPC connection
-            // In reality, you'd connect to niri's socket and listen for events
             loop {
-                glib::timeout_future_seconds(1).await;
-                // Update workspace display based on niri state
+                match receiver.recv().await {
+                    Ok(event) => match event {
+                        Event::WorkspaceChanged { id } => {
+                            // Remove active class from all buttons
+                            for button in buttons.values() {
+                                button.remove_css_class("active");
+                            }
+
+                            // Add active class to the current workspace
+                            if let Some(button) = buttons.get(&id) {
+                                button.add_css_class("active");
+                            }
+                        }
+                        Event::WorkspacesUpdated { workspaces } => {
+                            // Update button visibility based on available workspaces
+                            // For now, we'll just update active states
+                            for workspace in workspaces {
+                                if let Some(button) = buttons.get(&workspace.id) {
+                                    if workspace.is_active {
+                                        button.add_css_class("active");
+                                    } else {
+                                        button.remove_css_class("active");
+                                    }
+                                }
+                            }
+                        }
+                        _ => {} // Ignore other events
+                    },
+                    Err(_) => {
+                        // Channel closed, exit loop
+                        break;
+                    }
+                }
             }
         });
     }
