@@ -206,25 +206,37 @@ Implement D-Bus backends for system control.
   - [x] Emit media events
   - [ ] Test with media players (Spotify, VLC, Firefox)
 
-### 4.6 UI Integration
-- [ ] Update `BluetoothPopup` to use real backend
-  - [ ] Show real device list
-  - [ ] Implement connect/disconnect actions
-  - [ ] Show connection status
-- [ ] Update `WifiPopup` to use real backend
-  - [ ] Show real network list
-  - [ ] Implement connection dialog
-  - [ ] Show signal strength
-  - [ ] Handle password input
-- [ ] Update `MediaControlPopup` to use real backend
-  - [ ] Show active player
-  - [ ] Show track info
-  - [ ] Implement playback controls
-  - [ ] Show album art (if available)
-- [ ] Update `SystemInfo` widget
-  - [ ] Show real WiFi status
-  - [ ] Show real Bluetooth status
-  - [ ] Add click handlers to open popups
+### 4.6 UI Integration ✅
+- [x] Update `BluetoothPopup` to use real backend
+  - [x] Show real device list
+  - [x] Implement connect/disconnect actions
+  - [x] Show connection status
+  - [x] Wire up enable/disable toggle
+  - [x] Wire up scan button
+  - [x] Subscribe to Bluetooth events for reactive updates
+  - [x] Empty state handling
+- [x] Update `WifiPopup` to use real backend
+  - [x] Show real network list
+  - [x] Implement connection (basic)
+  - [x] Show signal strength with bars
+  - [x] Wire up enable/disable toggle
+  - [x] Wire up refresh button
+  - [x] Subscribe to WiFi events for reactive updates
+  - [x] Empty state handling
+  - [ ] Handle password input dialog (TODO for future)
+- [x] Update `MediaControlPopup` to use real backend
+  - [x] Show active player
+  - [x] Show track info (title, artist, album)
+  - [x] Implement playback controls (play/pause/next/prev)
+  - [x] Implement volume control
+  - [x] Subscribe to media events for reactive updates
+  - [x] Update UI based on playback status
+  - [ ] Show album art from URL (TODO for future)
+  - [ ] Seek functionality (TODO for future)
+- [x] Update `SystemInfo` widget
+  - [x] Show real WiFi status (already implemented via events)
+  - [x] Show real Bluetooth status (already implemented via events)
+  - [ ] Add click handlers to open popups (TODO for future)
 
 ## Phase 5: Hotkey System & CLI Tool
 
