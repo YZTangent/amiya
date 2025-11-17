@@ -1,3 +1,4 @@
+use crate::backend::NiriClient;
 use crate::config::Config;
 use crate::error::BackendStatus;
 use crate::events::EventManager;
@@ -16,6 +17,9 @@ pub struct AppState {
 
     /// Backend availability status
     pub backend_status: BackendStatus,
+
+    /// Niri IPC client (optional - may be None if niri is not running)
+    pub niri_client: Option<Arc<NiriClient>>,
 }
 
 impl AppState {
@@ -25,20 +29,36 @@ impl AppState {
 
         let events = EventManager::default();
 
+        // Try to connect to niri
+        let niri_client = match NiriClient::new() {
+            Ok(client) => {
+                info!("Successfully connected to niri compositor");
+                Some(Arc::new(client))
+            }
+            Err(e) => {
+                warn!("Could not connect to niri: {}. Workspace features will be limited.", e);
+                None
+            }
+        };
+
         // Check backend availability
-        let backend_status = Self::check_backend_availability();
+        let backend_status = if niri_client.is_some() {
+            BackendStatus::Available
+        } else {
+            BackendStatus::Unavailable
+        };
 
         AppState {
             config,
             events,
             backend_status,
+            niri_client,
         }
     }
 
     /// Check if system backends are available
     fn check_backend_availability() -> BackendStatus {
-        // For now, assume available
-        // In Phase 3 & 4, we'll actually check niri socket, D-Bus services, etc.
+        // Deprecated - status is now set during initialization
         BackendStatus::Available
     }
 
@@ -141,12 +161,21 @@ impl Application {
 
     /// Start backend event listeners
     fn start_backend_listeners(&self) -> Result<()> {
-        // In future phases, this will start:
-        // - Niri IPC event listener
+        // Start niri workspace polling if client is available
+        if let Some(niri_client) = &self.state.niri_client {
+            info!("Starting niri workspace polling");
+            crate::backend::niri::start_workspace_polling(
+                niri_client.clone(),
+                self.state.events.clone(),
+                2, // Poll every 2 seconds
+            );
+        } else {
+            info!("Niri client not available, skipping workspace polling");
+        }
+
+        // In Phase 4, this will also start:
         // - D-Bus signal listeners for audio, network, bluetooth
         // - MPRIS media player listeners
-
-        info!("Backend listeners will be initialized in Phase 3 & 4");
 
         Ok(())
     }
