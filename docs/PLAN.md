@@ -242,23 +242,34 @@ Implement D-Bus backends for system control.
 
 Implement hotkey triggering and command-line control tool.
 
-### 5.1 IPC for amiya-ctl
-- [ ] Create `src/ipc/server.rs`
-  - [ ] Implement Unix socket server
-  - [ ] Define command protocol
-  - [ ] Handle popup commands
-  - [ ] Handle volume commands
-  - [ ] Handle brightness commands
-  - [ ] Add authentication/security
+### 5.1 IPC for amiya-ctl ✅
+- [x] Create `src/ipc/protocol.rs`
+  - [x] Define command protocol (JSON over Unix sockets)
+  - [x] Define popup commands (show/hide/toggle)
+  - [x] Define volume actions (up/down/set/mute)
+  - [x] Define brightness actions (up/down/set)
+  - [x] Define response format
+- [x] Create `src/ipc/server.rs`
+  - [x] Implement Unix socket server
+  - [x] Handle popup commands
+  - [x] Handle volume commands
+  - [x] Handle brightness commands
+  - [x] Emit events to EventManager
+  - [x] Status and ping commands
+  - [x] Clean up socket on shutdown
+  - [ ] Add authentication/security (TODO for future)
 
-### 5.2 Command-Line Tool
-- [ ] Create `src/bin/amiya-ctl.rs`
-  - [ ] Implement CLI argument parsing
-  - [ ] Implement socket client
-  - [ ] Add popup subcommands (bluetooth, wifi, media)
-  - [ ] Add volume subcommands (up, down, mute)
-  - [ ] Add brightness subcommands (up, down)
-  - [ ] Add help text and usage examples
+### 5.2 Command-Line Tool ✅
+- [x] Create `src/bin/amiya-ctl.rs`
+  - [x] Implement CLI argument parsing with clap
+  - [x] Implement socket client
+  - [x] Add popup subcommands (show/hide/toggle for bluetooth, wifi, media-control)
+  - [x] Add volume subcommands (up, down, set, mute, unmute, toggle-mute)
+  - [x] Add brightness subcommands (up, down, set)
+  - [x] Add status command
+  - [x] Add ping command
+  - [x] Add help text and usage examples
+  - [x] User-friendly output with ✓/✗ indicators
 
 ### 5.3 Integration
 - [ ] Wire up amiya-ctl commands to event system
