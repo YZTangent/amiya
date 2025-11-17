@@ -1,4 +1,4 @@
-use crate::backend::{AudioControl, BacklightControl, BluetoothControl, NetworkControl, NiriClient};
+use crate::backend::{AudioControl, BacklightControl, BluetoothControl, MediaControl, NetworkControl, NiriClient};
 use crate::config::Config;
 use crate::error::BackendStatus;
 use crate::events::EventManager;
@@ -32,6 +32,9 @@ pub struct AppState {
 
     /// Network control (optional - may be None if network unavailable)
     pub network_control: Option<Arc<NetworkControl>>,
+
+    /// Media control (optional - may be None if media unavailable)
+    pub media_control: Option<Arc<MediaControl>>,
 }
 
 impl AppState {
@@ -73,6 +76,11 @@ impl AppState {
             crate::backend::system::network::create_network_control_sync(events.clone()),
         );
 
+        // Initialize media control
+        let media_control = Some(
+            crate::backend::system::media::create_media_control_sync(events.clone()),
+        );
+
         // Check backend availability
         let backend_status = if niri_client.is_some() {
             BackendStatus::Available
@@ -89,6 +97,7 @@ impl AppState {
             backlight_control,
             bluetooth_control,
             network_control,
+            media_control,
         }
     }
 
