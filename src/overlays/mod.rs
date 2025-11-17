@@ -1,3 +1,3 @@
 pub mod slider;
 
-pub use slider::{SliderOverlay, SliderType};
+pub use slider::{OverlayManager, SliderOverlay, SliderType};

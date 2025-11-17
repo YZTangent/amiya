@@ -1,8 +1,9 @@
+use crate::app::AppState;
+use crate::events::Event;
 use gtk4::prelude::*;
-use gtk4::{Application, ApplicationWindow, Box as GtkBox, Label, Orientation, ProgressBar};
+use gtk4::{glib, Application, ApplicationWindow, Box as GtkBox, Label, Orientation, ProgressBar};
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
 use std::sync::Arc;
-use std::time::Duration;
 
 #[derive(Debug, Clone, Copy)]
 pub enum SliderType {
@@ -79,6 +80,9 @@ impl SliderOverlay {
         // Apply styling
         Self::apply_theme(&window);
 
+        // Don't show by default - will be shown by events
+        window.set_visible(false);
+
         SliderOverlay {
             window,
             progress,
@@ -87,7 +91,38 @@ impl SliderOverlay {
         }
     }
 
-    pub fn show(&self, value: f64) {
+    pub fn show(&self, value: f64, muted: Option<bool>) {
+        // Update the label based on muted state (for volume)
+        if let Some(is_muted) = muted {
+            if is_muted {
+                let icon = match self.slider_type {
+                    SliderType::Volume => "🔇",
+                    _ => "☀️",
+                };
+                self.label.set_text(&format!(
+                    "{} {} (Muted)",
+                    icon,
+                    match self.slider_type {
+                        SliderType::Volume => "Volume",
+                        SliderType::Brightness => "Brightness",
+                    }
+                ));
+            } else {
+                let icon = match self.slider_type {
+                    SliderType::Volume => "🔊",
+                    _ => "☀️",
+                };
+                self.label.set_text(&format!(
+                    "{} {}",
+                    icon,
+                    match self.slider_type {
+                        SliderType::Volume => "Volume",
+                        SliderType::Brightness => "Brightness",
+                    }
+                ));
+            }
+        }
+
         self.progress.set_fraction(value / 100.0);
         self.progress.set_text(Some(&format!("{:.0}%", value)));
         self.window.present();
@@ -95,14 +130,9 @@ impl SliderOverlay {
         // Auto-hide after 2 seconds
         let window = self.window.clone();
         glib::timeout_add_seconds_local(2, move || {
-            window.close();
+            window.set_visible(false);
             glib::ControlFlow::Break
         });
-    }
-
-    pub fn update(&self, value: f64) {
-        self.progress.set_fraction(value / 100.0);
-        self.progress.set_text(Some(&format!("{:.0}%", value)));
     }
 
     fn apply_theme(window: &ApplicationWindow) {
@@ -145,32 +175,57 @@ impl SliderOverlay {
     }
 }
 
-// Global overlay manager
-use std::sync::Mutex;
-
-lazy_static::lazy_static! {
-    static ref VOLUME_OVERLAY: Mutex<Option<Arc<SliderOverlay>>> = Mutex::new(None);
-    static ref BRIGHTNESS_OVERLAY: Mutex<Option<Arc<SliderOverlay>>> = Mutex::new(None);
+/// Overlay manager that holds both volume and brightness overlays
+/// and subscribes them to events
+pub struct OverlayManager {
+    volume_overlay: Arc<SliderOverlay>,
+    brightness_overlay: Arc<SliderOverlay>,
 }
 
-pub fn show_volume_overlay(app: &Application, value: f64) {
-    let mut overlay = VOLUME_OVERLAY.lock().unwrap();
-    if overlay.is_none() {
-        *overlay = Some(Arc::new(SliderOverlay::new(app, SliderType::Volume)));
+impl OverlayManager {
+    pub fn new(app: &Application, state: &Arc<AppState>) -> Self {
+        let volume_overlay = Arc::new(SliderOverlay::new(app, SliderType::Volume));
+        let brightness_overlay = Arc::new(SliderOverlay::new(app, SliderType::Brightness));
+
+        // Subscribe to events
+        Self::subscribe_to_events(
+            state.events.clone(),
+            volume_overlay.clone(),
+            brightness_overlay.clone(),
+        );
+
+        OverlayManager {
+            volume_overlay,
+            brightness_overlay,
+        }
     }
 
-    if let Some(o) = overlay.as_ref() {
-        o.show(value);
+    fn subscribe_to_events(
+        events: crate::events::EventManager,
+        volume_overlay: Arc<SliderOverlay>,
+        brightness_overlay: Arc<SliderOverlay>,
+    ) {
+        let mut receiver = events.subscribe();
+
+        glib::spawn_future_local(async move {
+            loop {
+                match receiver.recv().await {
+                    Ok(event) => match event {
+                        Event::VolumeChanged { level, muted } => {
+                            volume_overlay.show(level, Some(muted));
+                        }
+                        Event::BrightnessChanged { level } => {
+                            brightness_overlay.show(level, None);
+                        }
+                        _ => {} // Ignore other events
+                    },
+                    Err(_) => {
+                        // Channel closed, exit loop
+                        break;
+                    }
+                }
+            }
+        });
     }
 }
 
-pub fn show_brightness_overlay(app: &Application, value: f64) {
-    let mut overlay = BRIGHTNESS_OVERLAY.lock().unwrap();
-    if overlay.is_none() {
-        *overlay = Some(Arc::new(SliderOverlay::new(app, SliderType::Brightness)));
-    }
-
-    if let Some(o) = overlay.as_ref() {
-        o.show(value);
-    }
-}

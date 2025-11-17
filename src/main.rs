@@ -1,6 +1,7 @@
 mod app;
 mod bar;
 mod config;
+mod error;
 mod events;
 mod ipc;
 mod overlays;
@@ -67,6 +68,9 @@ fn activate(gtk_app: &GtkApplication, app_state: Arc<app::AppState>) -> Result<(
     // Initialize the bar with event manager
     let bar = bar::Bar::new(gtk_app, &app_state)?;
     bar.show();
+
+    // Initialize overlay manager for volume and brightness sliders
+    let _overlay_manager = overlays::OverlayManager::new(gtk_app, &app_state);
 
     Ok(())
 }
