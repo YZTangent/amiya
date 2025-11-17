@@ -188,15 +188,22 @@ Implement D-Bus backends for system control.
   - [ ] Implement full connection workflow (AddAndActivateConnection)
   - [ ] Test with real WiFi networks
 
-### 4.5 Media Control (MPRIS2)
-- [ ] Create `src/backend/system/media.rs`
-  - [ ] Implement D-Bus connection to MPRIS
-  - [ ] Discover active media players
-  - [ ] Implement playback control (play/pause/next/prev)
-  - [ ] Get track metadata
-  - [ ] Get/set volume
-  - [ ] Subscribe to player signals
-  - [ ] Emit media events
+### 4.5 Media Control (MPRIS2) ✅
+- [x] Create `src/backend/system/media.rs`
+  - [x] Implement D-Bus connection to MPRIS
+  - [x] Discover active media players
+  - [x] Implement playback control (play/pause/stop/next/prev)
+  - [x] Get track metadata (title, artist, album, art URL, track ID)
+  - [x] Get/set volume (0.0-1.0)
+  - [x] Async implementation with tokio
+  - [x] Thread-safe with RwLock
+  - [x] Event integration with EventManager
+  - [x] Graceful degradation when no players available
+  - [x] Multi-player support with active player selection
+  - [x] Playback status tracking (Playing, Paused, Stopped)
+  - [x] Unit tests for media control
+  - [x] Subscribe to player signals (basic)
+  - [x] Emit media events
   - [ ] Test with media players (Spotify, VLC, Firefox)
 
 ### 4.6 UI Integration
