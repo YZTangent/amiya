@@ -23,11 +23,13 @@ A modern, integrated desktop environment for Wayland using [niri](https://github
 - **Volume Slider**: Beautiful overlay when volume is changed
 - **Brightness Slider**: Visual feedback for brightness adjustments
 
-### Hotkeys
-Configurable hotkeys for quick access to system controls:
-- `Super+B`: Open Bluetooth management
-- `Super+W`: Open WiFi management
-- `Super+M`: Open Media player controls
+### Hotkey Control
+Full control via `amiya-ctl` CLI tool:
+- **Popup Control**: Show/hide/toggle Bluetooth, WiFi, and Media popups
+- **Volume Control**: Adjust volume, mute/unmute via hotkeys
+- **Brightness Control**: Adjust screen brightness via hotkeys
+- **IPC Interface**: Unix socket-based command interface
+- **External Integration**: Works with niri, swhkd, or any hotkey daemon
 
 ## Screenshots
 
@@ -144,21 +146,73 @@ amiya
 
 ### Hotkey Integration
 
-For full hotkey support, you have several options:
+Amiya includes `amiya-ctl`, a command-line tool for controlling all desktop functions.
+
+#### Using amiya-ctl
+
+```bash
+# Popup control
+amiya-ctl popup toggle bluetooth
+amiya-ctl popup show wifi
+amiya-ctl popup hide media-control
+
+# Volume control
+amiya-ctl volume up
+amiya-ctl volume down --amount 10
+amiya-ctl volume toggle-mute
+
+# Brightness control
+amiya-ctl brightness up
+amiya-ctl brightness down --amount 5
+amiya-ctl brightness set 75
+
+# Utility
+amiya-ctl status
+amiya-ctl ping
+```
 
 #### Option 1: Use niri's built-in hotkeys
-Add to your niri config:
+
+Add to your niri config (`~/.config/niri/config.kdl`):
 
 ```kdl
 binds {
-    Mod+B { spawn "amiya-bluetooth"; }
-    Mod+W { spawn "amiya-wifi"; }
-    Mod+M { spawn "amiya-media"; }
+    // Popups
+    Mod+B { spawn "amiya-ctl" "popup" "toggle" "bluetooth"; }
+    Mod+W { spawn "amiya-ctl" "popup" "toggle" "wifi"; }
+    Mod+M { spawn "amiya-ctl" "popup" "toggle" "media-control"; }
+
+    // Volume (media keys)
+    XF86AudioRaiseVolume { spawn "amiya-ctl" "volume" "up"; }
+    XF86AudioLowerVolume { spawn "amiya-ctl" "volume" "down"; }
+    XF86AudioMute { spawn "amiya-ctl" "volume" "toggle-mute"; }
+
+    // Brightness (media keys)
+    XF86MonBrightnessUp { spawn "amiya-ctl" "brightness" "up"; }
+    XF86MonBrightnessDown { spawn "amiya-ctl" "brightness" "down"; }
 }
 ```
 
+See [docs/niri-config-example.kdl](./docs/niri-config-example.kdl) for a complete example.
+
 #### Option 2: Use an external hotkey daemon
-Install and configure [swhkd](https://github.com/waycrate/swhkd) or similar.
+
+Install and configure [swhkd](https://github.com/waycrate/swhkd):
+
+```bash
+# Install swhkd
+yay -S swhkd-bin  # Arch
+cargo install swhkd  # From source
+
+# Configure (~/.config/swhkd/swhkdrc)
+super + b
+    amiya-ctl popup toggle bluetooth
+super + w
+    amiya-ctl popup toggle wifi
+# ... see docs/swhkd-config-example for more
+```
+
+See [docs/HOTKEYS.md](./docs/HOTKEYS.md) for complete hotkey setup guide.
 
 ### Brightness Control
 
