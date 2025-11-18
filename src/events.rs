@@ -39,6 +39,11 @@ pub enum Event {
     TemperatureChanged {
         celsius: i32,
     },
+    BatteryChanged {
+        percentage: f64,
+        state: String,
+        is_charging: bool,
+    },
 
     // Network events
     WifiStateChanged {

@@ -1,4 +1,4 @@
-use crate::backend::{AudioControl, BacklightControl, BluetoothControl, MediaControl, NetworkControl, NiriClient};
+use crate::backend::{AudioControl, BacklightControl, BatteryControl, BluetoothControl, MediaControl, NetworkControl, NiriClient};
 use crate::config::Config;
 use crate::error::BackendStatus;
 use crate::events::EventManager;
@@ -35,6 +35,9 @@ pub struct AppState {
 
     /// Media control (optional - may be None if media unavailable)
     pub media_control: Option<Arc<MediaControl>>,
+
+    /// Battery control (optional - may be None if battery unavailable)
+    pub battery_control: Option<Arc<BatteryControl>>,
 }
 
 impl AppState {
@@ -81,6 +84,11 @@ impl AppState {
             crate::backend::system::media::create_media_control_sync(events.clone()),
         );
 
+        // Initialize battery control
+        let battery_control = Some(
+            crate::backend::system::battery::create_battery_control_sync(events.clone()),
+        );
+
         // Check backend availability
         let backend_status = if niri_client.is_some() {
             BackendStatus::Available
@@ -98,6 +106,7 @@ impl AppState {
             bluetooth_control,
             network_control,
             media_control,
+            battery_control,
         }
     }
 
@@ -200,6 +209,18 @@ impl Application {
             }
             glib::ControlFlow::Continue
         });
+
+        // Battery monitoring
+        if let Some(battery) = &self.state.battery_control {
+            let battery_clone = battery.clone();
+            glib::timeout_add_seconds_local(10, move || {
+                let battery = battery_clone.clone();
+                glib::spawn_future_local(async move {
+                    let _ = battery.get_info().await; // This triggers update and event emission
+                });
+                glib::ControlFlow::Continue
+            });
+        }
 
         Ok(())
     }
