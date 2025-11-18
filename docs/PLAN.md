@@ -287,20 +287,23 @@ Implement hotkey triggering and command-line control tool.
 
 Final polish and nice-to-have features.
 
-### 6.1 UI Improvements
-- [ ] Add click-away detection for popups
+### 6.1 UI Improvements ⚡ IN PROGRESS
+- [x] Add click-away detection for popups (already implemented in Phase 1-4)
 - [ ] Implement smooth animations
-- [ ] Add loading states
-- [ ] Add empty states (no devices, no networks)
+- [x] Add loading states (partially implemented - scan buttons show "Scanning...")
+- [x] Add empty states (partially implemented in popups)
 - [ ] Improve error messages
 - [ ] Add tooltips
 
-### 6.2 Additional Widgets
-- [ ] Battery widget
-  - [ ] Show battery percentage
-  - [ ] Show charging status
-  - [ ] Show time remaining
-  - [ ] Warning at low battery
+### 6.2 Additional Widgets ⚡ IN PROGRESS
+- [x] Battery widget ✅
+  - [x] Show battery percentage
+  - [x] Show charging status
+  - [x] Show time remaining (in backend, not displayed yet)
+  - [x] Warning at low battery (CSS classes for low/critical)
+  - [x] D-Bus UPower integration
+  - [x] Event-driven reactive updates
+  - [x] Battery state monitoring (every 10 seconds)
 - [ ] Network speed widget
   - [ ] Show upload/download speeds
   - [ ] Click to show details

@@ -1,6 +1,6 @@
 use crate::app::AppState;
 use crate::config::Position;
-use crate::widgets::{clock::Clock, system_info::SystemInfo, workspaces::Workspaces};
+use crate::widgets::{battery::Battery, clock::Clock, system_info::SystemInfo, workspaces::Workspaces};
 use anyhow::Result;
 use gtk4::prelude::*;
 use gtk4::{Application, ApplicationWindow, Box as GtkBox, Orientation};
@@ -72,13 +72,19 @@ impl Bar {
             center_box.append(&clock.widget());
         }
 
-        // Right section: System info
+        // Right section: System info and battery
         let right_box = GtkBox::new(Orientation::Horizontal, 12);
         right_box.set_margin_start(12);
         right_box.set_margin_end(12);
         right_box.set_margin_top(4);
         right_box.set_margin_bottom(4);
         right_box.set_halign(gtk4::Align::End);
+
+        // Battery widget (if available)
+        if state.battery_control.is_some() {
+            let battery = Battery::new(state);
+            right_box.append(&battery.widget());
+        }
 
         if config.bar.show_system_info {
             let system_info = SystemInfo::new(state);
@@ -134,6 +140,24 @@ fn apply_theme(window: &ApplicationWindow, config: &crate::config::Config) {
         .system-info-label {{
             padding: 2px 8px;
             margin: 0 2px;
+        }}
+
+        .battery-label {{
+            padding: 2px 8px;
+            margin: 0 2px;
+        }}
+
+        .battery-label.battery-low {{
+            color: #FFA500;
+        }}
+
+        .battery-label.battery-critical {{
+            color: #FF0000;
+            font-weight: bold;
+        }}
+
+        .battery-label.battery-charging {{
+            color: #00FF00;
         }}
 
         .clock-label {{
