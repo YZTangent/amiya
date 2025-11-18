@@ -1,7 +1,7 @@
 use crate::app::AppState;
 use crate::error::{AmiyaError, Result};
 use crate::events::Event;
-use crate::ipc::protocol::{BrightnessAction, Command, PopupType, Response, VolumeAction};
+use crate::ipc::protocol::{BrightnessAction, Command, PopupType, PowerAction, Response, VolumeAction};
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -136,6 +136,7 @@ impl IpcServer {
             Command::TogglePopup { popup } => self.handle_toggle_popup(popup).await,
             Command::Volume { action } => self.handle_volume(action).await,
             Command::Brightness { action } => self.handle_brightness(action).await,
+            Command::Power { action } => self.handle_power(action).await,
             Command::Status => self.handle_status().await,
             Command::Ping => Response::pong(),
         }
@@ -221,6 +222,31 @@ impl IpcServer {
             }
         } else {
             Response::error("Backlight control not available".to_string())
+        }
+    }
+
+    /// Handle power command
+    async fn handle_power(&self, action: PowerAction) -> Response {
+        if let Some(power) = &self.state.power_control {
+            use crate::backend::system::power::PowerAction as BackendPowerAction;
+
+            let backend_action = match action {
+                PowerAction::Shutdown => BackendPowerAction::Shutdown,
+                PowerAction::Reboot => BackendPowerAction::Reboot,
+                PowerAction::Suspend => BackendPowerAction::Suspend,
+                PowerAction::Hibernate => BackendPowerAction::Hibernate,
+                PowerAction::Lock => BackendPowerAction::Lock,
+            };
+
+            let action_name = backend_action.to_string().to_lowercase();
+            info!("Executing power action: {}", action_name);
+
+            match power.execute(backend_action).await {
+                Ok(()) => Response::success_with_message(format!("Executing {}", action_name)),
+                Err(e) => Response::error(format!("Failed to {}: {}", action_name, e)),
+            }
+        } else {
+            Response::error("Power control not available".to_string())
         }
     }
 

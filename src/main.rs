@@ -73,6 +73,9 @@ fn activate(gtk_app: &GtkApplication, app_state: Arc<app::AppState>) -> Result<(
     // Initialize overlay manager for volume and brightness sliders
     let _overlay_manager = overlays::OverlayManager::new(gtk_app, &app_state);
 
+    // Initialize popup manager for system popups
+    let _popup_manager = popups::PopupManager::new(gtk_app, app_state.clone());
+
     // Start IPC server in background
     let ipc_server = Arc::new(ipc::IpcServer::new(app_state.clone())?);
     let ipc_server_clone = ipc_server.clone();

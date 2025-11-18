@@ -148,13 +148,13 @@ Then bind it with your compositor or window manager.
 
 ```bash
 # Show popup
-amiya-ctl popup show <bluetooth|wifi|media-control>
+amiya-ctl popup show <bluetooth|wifi|media-control|power>
 
 # Hide popup
-amiya-ctl popup hide <bluetooth|wifi|media-control>
+amiya-ctl popup hide <bluetooth|wifi|media-control|power>
 
 # Toggle popup
-amiya-ctl popup toggle <bluetooth|wifi|media-control>
+amiya-ctl popup toggle <bluetooth|wifi|media-control|power>
 ```
 
 ### Volume Control
@@ -192,6 +192,28 @@ amiya-ctl brightness down [--amount <percent>]
 
 # Set specific level (0-100)
 amiya-ctl brightness set 50
+```
+
+### Power Management
+
+```bash
+# Shutdown the system
+amiya-ctl power shutdown
+
+# Reboot the system
+amiya-ctl power reboot
+
+# Suspend the system (sleep)
+amiya-ctl power suspend
+
+# Hibernate the system
+amiya-ctl power hibernate
+
+# Lock the screen
+amiya-ctl power lock
+
+# Show power menu popup
+amiya-ctl popup toggle power
 ```
 
 ### Utility Commands

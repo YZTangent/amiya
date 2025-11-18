@@ -16,6 +16,10 @@ super + w
 super + m
     amiya-ctl popup toggle media-control
 
+# Power menu
+super + escape
+    amiya-ctl popup toggle power
+
 # Alternative: Show/hide popups explicitly
 # super + shift + b
 #     amiya-ctl popup show bluetooth
@@ -69,6 +73,28 @@ XF86MonBrightnessDown
 # Set specific brightness levels
 # super + ctrl + {1-5}
 #     amiya-ctl brightness set {20,40,60,80,100}
+
+
+# Power Management
+# ================
+
+# Lock screen
+# super + l
+#     amiya-ctl power lock
+
+# Suspend (sleep)
+# super + shift + s
+#     amiya-ctl power suspend
+
+# Reboot
+# WARNING: This will reboot immediately!
+# super + shift + r
+#     amiya-ctl power reboot
+
+# Shutdown
+# WARNING: This will shutdown immediately!
+# super + shift + p
+#     amiya-ctl power shutdown
 
 
 # Utility Commands

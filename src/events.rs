@@ -126,6 +126,7 @@ pub enum PopupType {
     Bluetooth,
     Wifi,
     MediaControl,
+    Power,
 }
 
 /// Event manager handles broadcasting events throughout the application
