@@ -4,6 +4,7 @@ pub mod battery;
 pub mod bluetooth;
 pub mod media;
 pub mod network;
+pub mod power;
 
 pub use audio::AudioControl;
 pub use backlight::BacklightControl;
@@ -11,3 +12,4 @@ pub use battery::BatteryControl;
 pub use bluetooth::BluetoothControl;
 pub use media::MediaControl;
 pub use network::NetworkControl;
+pub use power::PowerControl;

@@ -33,6 +33,12 @@ enum Commands {
         action: BrightnessAction,
     },
 
+    /// Power management
+    Power {
+        #[command(subcommand)]
+        action: PowerActionCli,
+    },
+
     /// Get status
     Status,
 
@@ -116,6 +122,24 @@ enum BrightnessAction {
     },
 }
 
+#[derive(Subcommand)]
+enum PowerActionCli {
+    /// Shutdown the system
+    Shutdown,
+
+    /// Reboot the system
+    Reboot,
+
+    /// Suspend the system
+    Suspend,
+
+    /// Hibernate the system
+    Hibernate,
+
+    /// Lock the screen
+    Lock,
+}
+
 // Mirror the IPC protocol types
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "kebab-case")]
@@ -125,6 +149,7 @@ enum Command {
     TogglePopup { popup: PopupType },
     Volume { action: VolumeActionData },
     Brightness { action: BrightnessActionData },
+    Power { action: PowerActionData },
     Status,
     Ping,
 }
@@ -135,6 +160,7 @@ enum PopupType {
     Bluetooth,
     Wifi,
     MediaControl,
+    Power,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -154,6 +180,16 @@ enum BrightnessActionData {
     Up { amount: Option<f64> },
     Down { amount: Option<f64> },
     Set { level: f64 },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+enum PowerActionData {
+    Shutdown,
+    Reboot,
+    Suspend,
+    Hibernate,
+    Lock,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -197,6 +233,15 @@ fn main() -> anyhow::Result<()> {
                 BrightnessAction::Set { level } => BrightnessActionData::Set { level },
             },
         },
+        Commands::Power { action } => Command::Power {
+            action: match action {
+                PowerActionCli::Shutdown => PowerActionData::Shutdown,
+                PowerActionCli::Reboot => PowerActionData::Reboot,
+                PowerActionCli::Suspend => PowerActionData::Suspend,
+                PowerActionCli::Hibernate => PowerActionData::Hibernate,
+                PowerActionCli::Lock => PowerActionData::Lock,
+            },
+        },
         Commands::Status => Command::Status,
         Commands::Ping => Command::Ping,
     };
@@ -211,8 +256,9 @@ fn parse_popup_type(s: &str) -> anyhow::Result<PopupType> {
         "bluetooth" | "bt" => Ok(PopupType::Bluetooth),
         "wifi" | "network" => Ok(PopupType::Wifi),
         "media-control" | "media" => Ok(PopupType::MediaControl),
+        "power" => Ok(PopupType::Power),
         _ => Err(anyhow::anyhow!(
-            "Invalid popup type: {}. Valid types: bluetooth, wifi, media-control",
+            "Invalid popup type: {}. Valid types: bluetooth, wifi, media-control, power",
             s
         )),
     }

@@ -1,4 +1,4 @@
-use crate::backend::{AudioControl, BacklightControl, BatteryControl, BluetoothControl, MediaControl, NetworkControl, NiriClient};
+use crate::backend::{AudioControl, BacklightControl, BatteryControl, BluetoothControl, MediaControl, NetworkControl, NiriClient, PowerControl};
 use crate::config::Config;
 use crate::error::BackendStatus;
 use crate::events::EventManager;
@@ -38,6 +38,9 @@ pub struct AppState {
 
     /// Battery control (optional - may be None if battery unavailable)
     pub battery_control: Option<Arc<BatteryControl>>,
+
+    /// Power control (optional - may be None if power management unavailable)
+    pub power_control: Option<Arc<PowerControl>>,
 }
 
 impl AppState {
@@ -89,6 +92,9 @@ impl AppState {
             crate::backend::system::battery::create_battery_control_sync(events.clone()),
         );
 
+        // Initialize power control
+        let power_control = Some(crate::backend::system::power::create_power_control_sync());
+
         // Check backend availability
         let backend_status = if niri_client.is_some() {
             BackendStatus::Available
@@ -107,6 +113,7 @@ impl AppState {
             network_control,
             media_control,
             battery_control,
+            power_control,
         }
     }
 

@@ -12,6 +12,16 @@ binds {
     // Media control popup
     Mod+M { spawn "amiya-ctl" "popup" "toggle" "media-control"; }
 
+    // Power menu
+    Mod+Escape { spawn "amiya-ctl" "popup" "toggle" "power"; }
+
+    // Power management (direct actions)
+    // WARNING: These will execute immediately without confirmation!
+    // Mod+Shift+L { spawn "amiya-ctl" "power" "lock"; }
+    // Mod+Shift+S { spawn "amiya-ctl" "power" "suspend"; }
+    // Mod+Shift+R { spawn "amiya-ctl" "power" "reboot"; }
+    // Mod+Shift+P { spawn "amiya-ctl" "power" "shutdown"; }
+
     // Alternative: Show popups explicitly
     // Mod+Shift+B { spawn "amiya-ctl" "popup" "show" "bluetooth"; }
     // Mod+Shift+W { spawn "amiya-ctl" "popup" "show" "wifi"; }

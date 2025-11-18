@@ -318,13 +318,18 @@ Final polish and nice-to-have features.
 - [ ] Handle icon clicks
 - [ ] Support tray menus
 
-### 6.4 Additional Popups
-- [ ] Power menu
-  - [ ] Suspend
-  - [ ] Hibernate
-  - [ ] Shutdown
-  - [ ] Reboot
-  - [ ] Lock screen
+### 6.4 Additional Popups ✅ COMPLETED
+- [x] Power menu ✅
+  - [x] Suspend
+  - [x] Hibernate
+  - [x] Shutdown
+  - [x] Reboot
+  - [x] Lock screen
+  - [x] D-Bus systemd/logind integration
+  - [x] Beautiful UI with centered popup
+  - [x] IPC support via amiya-ctl
+  - [x] Hotkey bindings documented
+  - [x] PopupManager integration
 - [ ] Calendar popup
   - [ ] Show calendar on clock click
   - [ ] Show upcoming events

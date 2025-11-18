@@ -19,6 +19,9 @@ pub enum Command {
     /// Brightness control
     Brightness { action: BrightnessAction },
 
+    /// Power management
+    Power { action: PowerAction },
+
     /// Get current status
     Status,
 
@@ -33,6 +36,7 @@ pub enum PopupType {
     Bluetooth,
     Wifi,
     MediaControl,
+    Power,
 }
 
 /// Volume actions
@@ -54,6 +58,17 @@ pub enum BrightnessAction {
     Up { amount: Option<f64> },
     Down { amount: Option<f64> },
     Set { level: f64 },
+}
+
+/// Power actions
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum PowerAction {
+    Shutdown,
+    Reboot,
+    Suspend,
+    Hibernate,
+    Lock,
 }
 
 /// Response from amiya to amiya-ctl
