@@ -349,12 +349,31 @@ Final polish and nice-to-have features.
 - [ ] Test with multiple monitors
 - [ ] Test with different themes
 
-### 6.7 Packaging
+### 6.7 Packaging ⚡ IN PROGRESS
 - [ ] Create AUR package (Arch)
 - [ ] Create Flatpak
 - [ ] Create Nix package
-- [ ] Add install script
-- [ ] Add uninstall script
+- [x] Add install script ✅
+  - [x] Dependency checking
+  - [x] Binary installation to ~/.local/bin
+  - [x] Configuration file setup
+  - [x] Systemd service installation
+  - [x] User-friendly output with instructions
+- [x] Add uninstall script ✅
+  - [x] Service stop and disable
+  - [x] Binary removal
+  - [x] Optional configuration cleanup
+- [x] Create installation documentation (INSTALL.md) ✅
+  - [x] Prerequisites and dependencies
+  - [x] Quick install guide
+  - [x] Manual installation steps
+  - [x] Configuration guide
+  - [x] Troubleshooting section
+  - [x] Update instructions
+- [x] Create systemd user service ✅
+  - [x] Auto-restart on failure
+  - [x] Logging configuration
+  - [x] Environment setup
 
 ## Phase 7: Documentation & Community
 

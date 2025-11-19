@@ -23,6 +23,16 @@ A modern, integrated desktop environment for Wayland using [niri](https://github
 - **Volume Slider**: Beautiful overlay when volume is changed
 - **Brightness Slider**: Visual feedback for brightness adjustments
 
+### Battery Widget
+- **Battery Status**: Shows battery percentage and charging state
+- **Visual Indicators**: Color-coded battery levels (green when charging, orange/red when low)
+- **Real-time Updates**: Monitors battery via UPower D-Bus
+
+### Power Management
+- **Power Menu**: Centered popup with lock, suspend, hibernate, reboot, shutdown
+- **System Integration**: D-Bus systemd/logind integration for power actions
+- **Hotkey Support**: Quick access via amiya-ctl
+
 ### Hotkey Control
 Full control via `amiya-ctl` CLI tool:
 - **Popup Control**: Show/hide/toggle Bluetooth, WiFi, and Media popups
@@ -37,44 +47,30 @@ Full control via `amiya-ctl` CLI tool:
 
 ## Installation
 
-### Prerequisites
-
-#### System Dependencies
-```bash
-# Arch Linux
-sudo pacman -S gtk4 gtk4-layer-shell rust
-
-# Fedora
-sudo dnf install gtk4-devel gtk4-layer-shell-devel rust cargo
-
-# Ubuntu/Debian (22.04+)
-sudo apt install libgtk-4-dev libgtk4-layer-shell-dev cargo
-```
-
-#### Niri
-Amiya requires [niri](https://github.com/YaLTeR/niri) to be installed and running:
-
-```bash
-# Install niri (follow instructions at https://github.com/YaLTeR/niri)
-cargo install --git https://github.com/YaLTeR/niri.git
-```
-
-### Building from Source
+### Quick Install
 
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/amiya.git
 cd amiya
 
-# Build in release mode
-cargo build --release
+# Run the installation script
+./install.sh
 
-# Install to ~/.local/bin
-cp target/release/amiya ~/.local/bin/
-
-# Or install system-wide
-sudo cp target/release/amiya /usr/local/bin/
+# Enable auto-start
+systemctl --user enable --now amiya.service
 ```
+
+**For detailed installation instructions, troubleshooting, and manual installation, see [INSTALL.md](INSTALL.md).**
+
+### Prerequisites
+
+- **Rust** 1.70+ (install from [rustup.rs](https://rustup.rs/))
+- **GTK4** 4.12+
+- **Wayland compositor** (niri recommended)
+- **D-Bus** system services
+
+See [INSTALL.md](INSTALL.md) for distribution-specific package lists.
 
 ## Configuration
 
